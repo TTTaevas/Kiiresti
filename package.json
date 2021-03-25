@@ -1,0 +1,31 @@
+{
+  "name": "kiiresti",
+  "version": "0.1.1",
+  "description": "Discord bot interacting with the speedrun.com API",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js -test"
+  },
+  "keywords": [
+    "discord",
+    "speedrun",
+    "speedrun.com",
+    "bot"
+  ],
+  "author": "Taevas",
+  "license": "WTFPL",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TTTaevas/Kiiresti.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TTTaevas/Kiiresti/issues"
+  },
+  "homepage": "https://github.com/TTTaevas/Kiiresti#readme"
+}

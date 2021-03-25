@@ -8,9 +8,6 @@ module.exports = client => {
 		
 		const user_agent = process.env.npm_config_user_agent
 		switch(user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)) {
-			case "10":
-				chan = "824718539486658561"
-				break
 			case "12":
 				chan = "824718578183438377"
 				break

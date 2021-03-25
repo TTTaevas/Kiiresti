@@ -18,8 +18,8 @@ if (process.argv.length == 2) {
 	const user_agent = process.env.npm_config_user_agent
 	switch(user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)) {
 		case "10":
-			token = process.env.NODE10_TOKEN
-			break
+			console.log("Discord.js cannot properly run on Node.js v10! Please use Node.js >=v12 instead.")
+			process.exit(1)
 		case "12":
 			token = process.env.NODE12_TOKEN
 			break

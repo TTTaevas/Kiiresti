@@ -1,5 +1,5 @@
 module.exports = client => {
- 	console.log(`Kiiresti is now ready to operate on account ${client.user.tag}`)
+ 	console.log(`Kiiresti is now ready to operate on "${client.user.tag}"`)
  	client.user.setPresence({ activity: { type: 'WATCHING', name: 'your speedruns' }})
 	.catch(console.error)
 
@@ -22,10 +22,19 @@ module.exports = client => {
 				process.exit(1)
 		}
 
-		setTimeout(function() {process.exit(0)}, 25000)
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent Taevas")}, 5000) // User that has made runs
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent rockon")}, 10000) // User that hasn't made runs
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent ujiojhehothkylo")}, 15000) // User that does not exist
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent")}, 20000) // Missing argument
+		let delay = 3000
+		setTimeout(function() {process.exit(0)}, delay * 10)
+
+		// Test >ki recent, without associated accounts
+		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent Taevas")}, delay) // User that has made runs
+		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent rockon")}, delay * 2) // User that hasn't made runs
+		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent ujiojhehothkylo")}, delay * 3) // User that does not exist
+		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent")}, delay * 4) // Missing argument, INVALID CONTEXT
+
+		// Test >ki user AND >ki recent with associated accounts
+		setTimeout(function() {client.channels.cache.get(chan).send(">ki user")}, delay * 5) // Missing argument, INVALID COMMAND
+		setTimeout(function() {client.channels.cache.get(chan).send(">ki user ujiojhehothkylo")}, delay * 6) // User that does not exist
+		setTimeout(function() {client.channels.cache.get(chan).send(">ki user Taevas")}, delay * 7) // User that has made runs
+		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent")}, delay * 8) // Missing argument, VALID CONTEXT
 	}
 }

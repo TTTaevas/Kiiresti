@@ -1,5 +1,6 @@
 const top = require('../commands/top')
 const recent = require('../commands/recent')
+const user = require('../commands/user')
 prefix = '>ki'
 
 module.exports = (client, message) => {
@@ -9,5 +10,8 @@ module.exports = (client, message) => {
 	}
 	if (message.content.startsWith(`${prefix} recent`)) {
 		return recent(message)
+	}
+	if (message.content.startsWith(`${prefix} user`)) {
+		return user(message)
 	}
 }

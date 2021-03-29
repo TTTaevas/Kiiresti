@@ -40,7 +40,7 @@ module.exports = message => {
 			for (let i = 0; i < keys.length; i++) {
 				if (keys[i] == message.author.id) {
 					json = json + `\n  "${message.author.id}": "${user}"`
-					console.log(`(${id}) The following in the database has been updated: "${message.author.id}": "${user}"`)
+					console.log(`(${id}) An entry in the database has been UPDATED: "${message.author.id}": "${user}"`)
 					exists = true
 				} else {
 					json = json + `\n  "${keys[i]}": "${vals[i]}"`
@@ -48,16 +48,17 @@ module.exports = message => {
 				if (i != keys.length - 1 || exists == false) {json = json + ","}
 			}
 
-			if (!exists) {json = json + `\n  "${message.author.id}": "${user}"`}
+			if (!exists) {
+				json = json + `\n  "${message.author.id}": "${user}"`
+				console.log(`(${id}) An entry in the database has been ADDED: "${message.author.id}": "${user}"`)
+			}
 
 			json = json + "\n}"
 
 			fs.writeFile("./database.json", json, function(error) {
 				if (error) {throw error}
-				console.log(`(${id}) The database file has been updated!`)
 				message.channel.send(`${message.author} Your Discord account has been successfully associated with "${user}" on speedrun.com!`)
 			})
-
 		})
 		
 	})

@@ -8,7 +8,7 @@ module.exports = message => {
 		
 		if (!user) {return message.reply("you have not yet associated your Discord account to a speedrun.com account!")}
 
-		id = Math.floor((Math.random() * 999999) + 1) // If multiple requests are made at the same time, and one of them glitches out: better logging
+		id = Math.floor((Math.random() * 999999) + 1)
 		let currentDate = new Date()
 		console.log(`\n---------${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} | ${id}---------`)
 
@@ -42,7 +42,10 @@ module.exports = message => {
 				let sub_cat_promise = new Promise((resolve, reject) => {resolve(get("categories", `/${run.category}/variables`))})
 
 				Promise.all([recent_promise, game_promise, category_promise, sub_cat_promise])
-				.then((values) => {embed(message, run, user_info, values[0], values[1], values[2], values[3])})
+				.then((values) => {
+					embed(message, run, user_info, values[0], values[1], values[2], values[3])
+					store(message.channel.id, run.game, run.category)
+				})
 
 			})
 
@@ -54,6 +57,7 @@ module.exports = message => {
 
 function embed(message, run, user, recent, game, category, sub_cat) {
 	const Discord = require('discord.js')
+	const run_time = require('../functions/run_time.js')
 
 	const to_send = new Discord.MessageEmbed({
 		author: {
@@ -70,7 +74,7 @@ function embed(message, run, user, recent, game, category, sub_cat) {
 		if (recent[i].game == run.game && recent[i].category == run.category && recent[i].id != run.id) {
 			to_send.addField(`Previous time from ${recent[i].date}`, `${run_time(recent[i].times.primary)} | ${recent[i].weblink}`)
 		}
-		if (i >= 24) {i = recent.length} // Number of fields is limited to 25, according to Discord.js documentation
+		if (i >= 15) {i = recent.length} // Number of fields is apparently limited to 25, but 15 is already big enough
 	}
 
 	let description = ""
@@ -89,12 +93,50 @@ function embed(message, run, user, recent, game, category, sub_cat) {
 	message.channel.send(to_send)
 }
 
-function run_time(time) {
-	time = time.replace("PT", "")
-	if (time.indexOf("H") != -1) {time = time.charAt(time.indexOf("H") + 2) == "M" ? time.replace("H", ":0") : time.replace("H", ":")}
-	if (time.indexOf("M") != -1) {time = time.charAt(time.indexOf("M") + 2) == "." ? time.replace("M", ":0") : time.replace("M", ":")}
-	time = time.replace("S", "")
-	return time
+function store(channel, game, category) { // Stores the last run on the channel so it can be compared to by users
+	const fs = require('fs')
+
+	if (!fs.existsSync("./last_runs.json")) {
+		fs.writeFile("./last_runs.json", '[]', function(error) {
+			if (error) {throw error}
+			console.log(`(${id}) The last_runs file has been created!`)
+		})
+	}
+
+	let last_runs_promise = new Promise((resolve, reject) => {
+		fs.readFile("./last_runs.json", function(error, data) {
+			if (error) {throw error}
+			resolve(JSON.parse(data))
+		})
+	})
+	.then((last_runs) => {
+
+		let exists = false
+
+		for (let i = 0; i < last_runs.length; i++) {
+			if (last_runs[i].channel == channel) {
+				last_runs[i].game = game
+				last_runs[i].category = category
+				console.log(`(${id}) Channel ${channel} has been UPDATED in the last_runs file`)
+				exists = true
+				i = last_runs.length
+			}
+		}
+
+		last_runs = JSON.stringify(last_runs)
+
+		if (!exists) {
+			console.log(last_runs.charAt(last_runs.length - 1))
+			if (last_runs.charAt(last_runs.length - 2) == "}") {
+				last_runs = `${last_runs.substring(0, last_runs.length - 1)},{"channel": "${channel}","game": "${game}","category": "${category}"}]`
+			} else {
+				last_runs = `${last_runs.substring(0, last_runs.length - 1)}{"channel": "${channel}","game": "${game}","category": "${category}"}]`
+			}
+			console.log(`(${id}) Channel ${channel} has been ADDED to the last_runs file`)
+		}
+
+		fs.writeFile("./last_runs.json", last_runs, function(error) {if (error) {throw error}})
+	})
 }
 
 async function discord_user(msg, message) {

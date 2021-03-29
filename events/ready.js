@@ -23,18 +23,21 @@ module.exports = client => {
 		}
 
 		let delay = 3000
-		setTimeout(function() {process.exit(0)}, delay * 10)
+		let commands = [
+			function() {client.channels.cache.get(chan).send(">ki compare")},
+			function() {client.channels.cache.get(chan).send(">ki recent Taevas")},
+			function() {client.channels.cache.get(chan).send(">ki recent ujiojhehothkylo")},
+			function() {client.channels.cache.get(chan).send(">ki recent")},
+			function() {client.channels.cache.get(chan).send(">ki user")},
+			function() {client.channels.cache.get(chan).send(">ki user Taevas")},
+			function() {client.channels.cache.get(chan).send(">ki user ujiojhehothkylo")},
+			function() {client.channels.cache.get(chan).send(">ki compare")},
+			function() {process.exit(0)}
+		]
 
-		// Test >ki recent, without associated accounts
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent Taevas")}, delay) // User that has made runs
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent rockon")}, delay * 2) // User that hasn't made runs
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent ujiojhehothkylo")}, delay * 3) // User that does not exist
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent")}, delay * 4) // Missing argument, INVALID CONTEXT
-
-		// Test >ki user AND >ki recent with associated accounts
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki user")}, delay * 5) // Missing argument, INVALID COMMAND
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki user ujiojhehothkylo")}, delay * 6) // User that does not exist
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki user Taevas")}, delay * 7) // User that has made runs
-		setTimeout(function() {client.channels.cache.get(chan).send(">ki recent")}, delay * 8) // Missing argument, VALID CONTEXT
+		for (let i = 0; i < commands.length; i++) {
+			setTimeout(function() {console.log(`\n\n(${(delay * (i + 1)) / 1000}s) TESTING: ${String(commands[i])}`)}, (delay - 100) * (i + 1))
+			setTimeout(commands[i], delay * (i + 1))
+		}
 	}
 }

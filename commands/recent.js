@@ -1,9 +1,10 @@
 module.exports = message => {
 
 	const get = require('../functions/get.js')
-	const msg = message.content.split(" ")
+	const discord_user = require('../functions/discord_user.js')
+	const embed_normal = require('../functions/embed_normal.js')
 
-	let user_promise = new Promise((resolve, reject) => {resolve(discord_user(msg, message))})
+	let user_promise = new Promise((resolve, reject) => {resolve(discord_user(message.content.split(" "), message))})
 	.then((user) => {
 		
 		if (!user) {return message.reply("you have not yet associated your Discord account to a speedrun.com account!")}
@@ -24,16 +25,15 @@ module.exports = message => {
 			
 			for (let i = 0; i < speedrun_user.length; i++) {if (speedrun_user[i].names.international == user) {user_info = speedrun_user[i]}}
 			if (user_info == undefined) {return message.channel.send(`${message.author} I may be blind, but ${user} doesn't seem to exist...`)}
-			const id = user_info.id
 
-			let recent_all_promise = new Promise((resolve, reject) => {resolve(get("runs", `?user=${id}&orderby=date&direction=desc`))})
+			let recent_all_promise = new Promise((resolve, reject) => {resolve(get("runs", `?user=${user_info.id}&orderby=date&direction=desc`))})
 			.then((recent_all) => { // Get the user's recent runs
 
 				if (recent_all.length <= 0) {return message.channel.send(`${message.author} ${user_info.names.international} doesn't seem to have made any run yet...`)}
 				let run = recent_all[0]
 
 				// Get the user's other runs on the same game as the most recent one; needed for the embed's fields
-				let recent_promise = new Promise((resolve, reject) => {resolve(get("runs", `?user=${id}&game=${run.game}&category=${run.category}&orderby=date&direction=desc`))})
+				let recent_promise = new Promise((resolve, reject) => {resolve(get("runs", `?user=${user_info.id}&game=${run.game}&category=${run.category}&orderby=date&direction=desc`))})
 				// Get the game; needed for the embed's thumbnail
 				let game_promise = new Promise((resolve, reject) => {resolve(get("games", `/${run.game}`))})
 				// Get the run's game's category; needed for the embed's title
@@ -43,7 +43,7 @@ module.exports = message => {
 
 				Promise.all([recent_promise, game_promise, category_promise, sub_cat_promise])
 				.then((values) => {
-					embed(message, run, user_info, values[0], values[1], values[2], values[3])
+					embed_normal(message, run, user_info, values[0], values[1], values[2], values[3])
 					store(message.channel.id, run.game, run.category)
 				})
 
@@ -53,44 +53,6 @@ module.exports = message => {
 
 	})
 
-}
-
-function embed(message, run, user, recent, game, category, sub_cat) {
-	const Discord = require('discord.js')
-	const run_time = require('../functions/run_time.js')
-
-	const to_send = new Discord.MessageEmbed({
-		author: {
-			name: `Latest run by ${user.names.international}, made the ${run.date}`,
-			url: user.weblink
-		},
-		title: `${game.names.international} (${category.name}) in ${run_time(run.times.primary)}`,
-		url: run.weblink,
-		color: user['name-style']['color-from'].light
-	})
-	.setThumbnail(game.assets['cover-medium'].uri) // Can't use "thumbnail" directly for some reason???
-
-	for (let i = 0; i < recent.length; i++) {
-		if (recent[i].game == run.game && recent[i].category == run.category && recent[i].id != run.id) {
-			to_send.addField(`Previous time from ${recent[i].date}`, `${run_time(recent[i].times.primary)} | ${recent[i].weblink}`)
-		}
-		if (i >= 15) {i = recent.length} // Number of fields is apparently limited to 25, but 15 is already big enough
-	}
-
-	let description = ""
-	for (let i = 0; i < Object.keys(run.values).length; i++) {
-		for (let o = 0; o < Object.keys(sub_cat).length; o++) {
-			for (let e = 0; e < Object.keys(sub_cat[o].values.values).length; e++) {
-				if (Object.values(run.values)[i] == Object.keys(sub_cat[o].values.values)[e]) {
-					description += sub_cat[o].name + ": "
-					description += String(Object.values(sub_cat[o].values.values)[e].label) + "\n"
-				}
-			}
-		}
-	}
-	to_send.setDescription(description)
-
-	message.channel.send(to_send)
 }
 
 function store(channel, game, category) { // Stores the last run on the channel so it can be compared to by users
@@ -126,7 +88,6 @@ function store(channel, game, category) { // Stores the last run on the channel 
 		last_runs = JSON.stringify(last_runs)
 
 		if (!exists) {
-			console.log(last_runs.charAt(last_runs.length - 1))
 			if (last_runs.charAt(last_runs.length - 2) == "}") {
 				last_runs = `${last_runs.substring(0, last_runs.length - 1)},{"channel": "${channel}","game": "${game}","category": "${category}"}]`
 			} else {
@@ -137,33 +98,4 @@ function store(channel, game, category) { // Stores the last run on the channel 
 
 		fs.writeFile("./last_runs.json", last_runs, function(error) {if (error) {throw error}})
 	})
-}
-
-async function discord_user(msg, message) {
-	const fs = require('fs')
-	var user
-
-	if (msg.length >= 3) {return msg[2]}
-
-	if (!fs.existsSync("./database.json")) {return undefined}
-
-	let database_promise = await new Promise((resolve, reject) => {
-		fs.readFile("./database.json", function(error, data) {
-			if (error) {throw error}
-			resolve(JSON.parse(data))
-		})
-	})
-	.then((database) => {
-		let keys = Object.keys(database)
-		let vals = Object.values(database)
-
-		for (let i = 0; i < keys.length; i++) {
-			if (keys[i] == message.author.id) {
-				user = vals[i]
-			}
-		}
-
-	})
-
-	return user
 }

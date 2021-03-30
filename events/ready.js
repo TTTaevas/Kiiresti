@@ -24,20 +24,21 @@ module.exports = client => {
 
 		let delay = 3000
 		let commands = [
-			function() {client.channels.cache.get(chan).send(">ki compare")},
-			function() {client.channels.cache.get(chan).send(">ki recent Taevas")},
-			function() {client.channels.cache.get(chan).send(">ki recent ujiojhehothkylo")},
-			function() {client.channels.cache.get(chan).send(">ki recent")},
-			function() {client.channels.cache.get(chan).send(">ki user")},
-			function() {client.channels.cache.get(chan).send(">ki user Taevas")},
-			function() {client.channels.cache.get(chan).send(">ki user ujiojhehothkylo")},
-			function() {client.channels.cache.get(chan).send(">ki compare")},
-			function() {process.exit(0)}
+			"compare",
+			"recent Taevas",
+			"recent ujiojhehothkylo",
+			"recent",
+			"user",
+			"user Taevas",
+			"user ujiojhehothkylo",
+			"compare"
 		]
 
 		for (let i = 0; i < commands.length; i++) {
-			setTimeout(function() {console.log(`\n\n(${(delay * (i + 1)) / 1000}s) TESTING: ${String(commands[i])}`)}, (delay - 100) * (i + 1))
-			setTimeout(commands[i], delay * (i + 1))
+			setTimeout(function() {console.log(`\n\n(${(delay * (i + 1)) / 1000}s) TESTING: ${prefix} ${commands[i]}`)}, (delay - 100) * (i + 1))
+			setTimeout(function() {client.channels.cache.get(chan).send(`${prefix} ${commands[i]}`)}, delay * (i + 1))
 		}
+
+		setTimeout(function() {process.exit(0)}, delay * (commands.length + 1))
 	}
 }

@@ -9,7 +9,7 @@ module.exports = async function get(type, value) {
 		headers: {
 			"Content-Type": "application/json",
 			"Accept": "application/json",
-			"User-Agent": "Kiiresti/0.3.0",
+			"User-Agent": "Kiiresti/0.4.0",
 			"X-API-Key": process.env.SPEEDRUN_TOKEN
 		}
 	})

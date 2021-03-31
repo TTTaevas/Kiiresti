@@ -25,13 +25,15 @@ module.exports = client => {
 		let delay = 3000
 		let commands = [
 			"compare",
+			"top",
 			"recent Taevas",
 			"recent ujiojhehothkylo",
 			"recent",
 			"user",
-			"user Taevas",
+			"user KingSawyer",
 			"user ujiojhehothkylo",
-			"compare"
+			"compare",
+			"top"
 		]
 
 		for (let i = 0; i < commands.length; i++) {

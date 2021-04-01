@@ -79,12 +79,16 @@ function find_top_scores(message, game, category) {
 
 		if (leaderboard.runs.length <= 0) {return message.channel.send(`${message.author} It doens't seem like any run was made for that...`)}
 
-		let game_promise = new Promise((resolve, reject) => {resolve(get("games", `/${game}`))})
-		let category_promise = new Promise((resolve, reject) => {resolve(get("categories", `/${category}`))})
+		let game_promise = new Promise((resolve, reject) => {resolve(get("games", `/${game}?embed=categories`))})
+		.then((game) => {
+			let categories = game.categories.data
 
-		Promise.all([game_promise, category_promise])
-		.then((values) => {
-			embed_top(message, leaderboard, values[0], values[1])
+			for (let i = 0; i < categories.length; i++) {
+				if (categories[i].id == category) {
+					embed_top(message, leaderboard, game, categories[i])
+					i = categories.length
+				}
+			}
 		})
 	})
 }

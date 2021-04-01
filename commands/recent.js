@@ -34,16 +34,22 @@ module.exports = message => {
 
 				// Get the user's other runs on the same game as the most recent one; needed for the embed's fields
 				let recent_promise = new Promise((resolve, reject) => {resolve(get("runs", `?user=${user_info.id}&game=${run.game}&category=${run.category}&orderby=date&direction=desc`))})
-				// Get the game; needed for the embed's thumbnail
-				let game_promise = new Promise((resolve, reject) => {resolve(get("games", `/${run.game}`))})
-				// Get the run's game's category; needed for the embed's title
-				let category_promise = new Promise((resolve, reject) => {resolve(get("categories", `/${run.category}`))})
-				// Get the run's details; needed for the embed's description
-				let sub_cat_promise = new Promise((resolve, reject) => {resolve(get("categories", `/${run.category}/variables`))})
+				// Don't get the category directly, because the game has important data, such as the embed's thumbnail
+				let game_promise = new Promise((resolve, reject) => {resolve(get("games", `/${run.game}?embed=categories.variables`))})
 
-				Promise.all([recent_promise, game_promise, category_promise, sub_cat_promise])
+				Promise.all([recent_promise, game_promise])
 				.then((values) => {
-					embed_normal(message, run, user_info, values[0], values[1], values[2], values[3])
+					let categories = values[1].categories.data
+					var category
+
+					for (let i = 0; i < categories.length; i++) {
+						if (categories[i].id == run.category) {
+							category = categories[i]
+							i = categories.length
+						}
+					}
+
+					embed_normal(message, run, user_info, values[0], values[1], category, category.variables.data)
 					store(message.channel.id, run.game, run.category)
 				})
 

@@ -22,13 +22,11 @@ module.exports = function embed_normal(message, run, user, recent, game, categor
 	}
 
 	let field_number = 0
-	console.log(run.weblink)
 
 	for (let i = 0; i < recent.length; i++) {
 		if (recent[i].game == run.game && recent[i].category == run.category && recent[i].id != run.id) {
 			if (details[1] != undefined) { // Make sure the runs are in the same sub-category
 				let recent_details = treat_details(recent[i].values, category.variables.data)
-				console.log(recent[i].weblink)
 				if (recent_details[1].id == details[1].id) {
 					to_send.addField(`Previous time from ${recent[i].date}`, `${run_time(recent[i].times.primary)} | ${recent[i].weblink}`)
 					field_number++

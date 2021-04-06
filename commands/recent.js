@@ -44,15 +44,17 @@ module.exports = message => {
 					let categories = values[1].categories.data
 					var category
 
-					for (let i = 0; i < categories.length; i++) {
-						if (categories[i].id == run.category) {
-							category = categories[i]
-							i = categories.length
+					for (let e = 0; e < categories.length; e++) {
+						if (categories[e].id == run.category) {
+							category = categories[e]
+							e = categories.length
 						}
 					}
 
-					embed_normal(message, run, user_info, values[0], values[1], category, treat_details(run.values, category.variables.data))
-					store(message.channel.id, run.game, run.category)
+					let details = treat_details(run.values, category.variables.data)
+
+					embed_normal(message, run, user_info, values[0], values[1], category, details)
+					store(message.channel.id, run.game, run.category, details[1].id)
 
 				})
 
@@ -64,7 +66,7 @@ module.exports = message => {
 
 }
 
-function store(channel, game, category) { // Stores the last run on the channel so it can be compared to by users
+function store(channel, game, category, sub_category) { // Stores the last run on the channel so it can be compared to by users
 	const fs = require('fs')
 
 	if (!fs.existsSync("./last_runs.json")) {
@@ -88,6 +90,7 @@ function store(channel, game, category) { // Stores the last run on the channel 
 			if (last_runs[i].channel == channel) {
 				last_runs[i].game = game
 				last_runs[i].category = category
+				last_runs[i].sub_category = sub_category
 				console.log(`(${id}) Channel ${channel} has been UPDATED in the last_runs file`)
 				exists = true
 				i = last_runs.length
@@ -98,9 +101,9 @@ function store(channel, game, category) { // Stores the last run on the channel 
 
 		if (!exists) {
 			if (last_runs.charAt(last_runs.length - 2) == "}") {
-				last_runs = `${last_runs.substring(0, last_runs.length - 1)},{"channel": "${channel}","game": "${game}","category": "${category}"}]`
+				last_runs = `${last_runs.substring(0, last_runs.length - 1)},{"channel": "${channel}","game": "${game}","category": "${category}","sub_category": "${sub_category}"}]`
 			} else {
-				last_runs = `${last_runs.substring(0, last_runs.length - 1)}{"channel": "${channel}","game": "${game}","category": "${category}"}]`
+				last_runs = `${last_runs.substring(0, last_runs.length - 1)}{"channel": "${channel}","game": "${game}","category": "${category}","sub_category": "${sub_category}"}]`
 			}
 			console.log(`(${id}) Channel ${channel} has been ADDED to the last_runs file`)
 		}

@@ -1,7 +1,7 @@
 module.exports = message => {
-
 	const get = require('../functions/get.js')
 	const discord_user = require('../functions/discord_user.js')
+	const treat_details = require('../functions/treat_details.js')
 	const embed_normal = require('../functions/embed_normal.js')
 
 	let user_promise = new Promise((resolve, reject) => {resolve(discord_user(message.content.split(" "), message))})
@@ -39,6 +39,8 @@ module.exports = message => {
 
 				Promise.all([recent_promise, game_promise])
 				.then((values) => {
+
+					// Deal with the category
 					let categories = values[1].categories.data
 					var category
 
@@ -49,8 +51,9 @@ module.exports = message => {
 						}
 					}
 
-					embed_normal(message, run, user_info, values[0], values[1], category, category.variables.data)
+					embed_normal(message, run, user_info, values[0], values[1], category, treat_details(run.values, category.variables.data))
 					store(message.channel.id, run.game, run.category)
+
 				})
 
 			})

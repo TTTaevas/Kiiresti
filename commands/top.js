@@ -62,6 +62,7 @@ module.exports = message => {
 				}
 
 				if (!exists) {return message.channel.send(`${message.author} The category you specified doesn't seem to exist!`)}
+					
 			} else {
 				category = game.categories.data[0] // Just pick the first category if the user didn't specify one
 			}

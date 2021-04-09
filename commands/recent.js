@@ -54,7 +54,7 @@ module.exports = message => {
 					let details = treat_details(run.values, category.variables.data)
 
 					embed_normal(message, run, user_info, values[0], values[1], category, details)
-					store(message.channel.id, run.game, run.category, details[1].id)
+					store(message.channel.id, run.game, run.category, details[1].id, details[1].name)
 
 				})
 
@@ -66,7 +66,7 @@ module.exports = message => {
 
 }
 
-function store(channel, game, category, sub_category) { // Stores the last run on the channel so it can be compared to by users
+function store(channel, game, category, sub_category, sub_category_name) { // Stores the last run on the channel so it can be compared to by users
 	const fs = require('fs')
 
 	if (!fs.existsSync("./last_runs.json")) {
@@ -91,6 +91,7 @@ function store(channel, game, category, sub_category) { // Stores the last run o
 				last_runs[i].game = game
 				last_runs[i].category = category
 				last_runs[i].sub_category = sub_category
+				last_runs[i].sub_category_name = sub_category_name // Currently only useful for the >ki top command
 				console.log(`(${id}) Channel ${channel} has been UPDATED in the last_runs file`)
 				exists = true
 				i = last_runs.length
@@ -101,9 +102,9 @@ function store(channel, game, category, sub_category) { // Stores the last run o
 
 		if (!exists) {
 			if (last_runs.charAt(last_runs.length - 2) == "}") {
-				last_runs = `${last_runs.substring(0, last_runs.length - 1)},{"channel": "${channel}","game": "${game}","category": "${category}","sub_category": "${sub_category}"}]`
+				last_runs = `${last_runs.substring(0, last_runs.length - 1)},{"channel": "${channel}","game": "${game}","category": "${category}","sub_category": "${sub_category}","sub_category_name": "${sub_category_name}"}]`
 			} else {
-				last_runs = `${last_runs.substring(0, last_runs.length - 1)}{"channel": "${channel}","game": "${game}","category": "${category}","sub_category": "${sub_category}"}]`
+				last_runs = `${last_runs.substring(0, last_runs.length - 1)}{"channel": "${channel}","game": "${game}","category": "${category}","sub_category": "${sub_category}","sub_category_name": "${sub_category_name}"}]`
 			}
 			console.log(`(${id}) Channel ${channel} has been ADDED to the last_runs file`)
 		}

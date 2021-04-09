@@ -2,7 +2,7 @@
 
 module.exports = function treat_vals(run_details, cat_details) {
 	let details = []
-	var sub_cat
+	let sub_cat = false
 
 	let Detail = class {
 		constructor(id, name, choice) {

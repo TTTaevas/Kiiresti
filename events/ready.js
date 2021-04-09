@@ -22,7 +22,7 @@ module.exports = client => {
 				process.exit(1)
 		}
 
-		let delay = 3000
+		let delay = 4000
 		let commands = [
 			"compare",
 			"top",
@@ -41,6 +41,6 @@ module.exports = client => {
 			setTimeout(function() {client.channels.cache.get(chan).send(`${prefix} ${commands[i]}`)}, delay * (i + 1))
 		}
 
-		setTimeout(function() {process.exit(0)}, delay * (commands.length + 1))
+		setTimeout(function() {process.exit(0)}, delay * (commands.length + 3))
 	}
 }

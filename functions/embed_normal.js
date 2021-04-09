@@ -15,7 +15,7 @@ module.exports = function embed_normal(message, run, user, recent, game, categor
 	})
 	.setThumbnail(game.assets['cover-medium'].uri) // Can't use "thumbnail" directly for some reason???
 
-	if (details[1] != undefined) {
+	if (details[1]) {
 		to_send.setTitle(`${game.names.international} (${category.name} - ${details[1].name}) in ${run_time(run.times.primary)}`)
 	} else {
 		to_send.setTitle(`${game.names.international} (${category.name}) in ${run_time(run.times.primary)}`)
@@ -25,7 +25,7 @@ module.exports = function embed_normal(message, run, user, recent, game, categor
 
 	for (let i = 0; i < recent.length; i++) {
 		if (recent[i].game == run.game && recent[i].category == run.category && recent[i].id != run.id) {
-			if (details[1] != undefined) { // Make sure the runs are in the same sub-category
+			if (details[1]) { // Make sure the runs are in the same sub-category
 				let recent_details = treat_details(recent[i].values, category.variables.data)
 				if (recent_details[1].id == details[1].id) {
 					to_send.addField(`Previous time from ${recent[i].date}`, `${run_time(recent[i].times.primary)} | ${recent[i].weblink}`)

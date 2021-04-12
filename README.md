@@ -8,6 +8,10 @@ Kiiresti is an open-source Discord bot you can use to get content from [speedrun
 
 ## Commands
 
+### >ki help <command>
+
+This allows you to get more info on the bot's commands. You can get more info on a specific command by using the optional `command` argument. You can get more info on `>ki recent` using `>ki help recent`!
+
 ### >ki recent <user>
 
 This command allows you to get a user's most recent run, as well as some of their old runs on the same game and category. The `user` argument is optional if the user doing that command has done `>ki user` before.
@@ -27,4 +31,5 @@ That allows you to get the top 10 best runs on a game and a category. If the `ca
 ## Misc
 
 You can use the first letter of each command instead of typing it in full!
+
 `>ki recent` -> `>ki r` | `>ki user` -> `>ki u` | `>ki compare` -> `>ki c` | `>ki top` -> `>ki t`

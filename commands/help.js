@@ -16,7 +16,6 @@ module.exports = message => {
 						color: "#3399ff"
 					})
 					to_send.setTitle(`How to use: ${prefix} ${commands[e]}`)
-					//to_send.setFooter(`*Help requested by ${message.author.tag}*`) idk about this yet
 
 					switch(commands[e]) {
 						case "help":

@@ -3,8 +3,8 @@
 module.exports = async function discord_user(msg, message) {
 	const fs = require('fs')
 	var user
-
-	if (msg.length >= 3) {return msg[2]}
+	
+	if (msg.length >= 3 && message.mentions.users.first() == undefined) {return msg[2]}
 
 	if (!fs.existsSync("./database.json")) {return undefined}
 
@@ -17,9 +17,10 @@ module.exports = async function discord_user(msg, message) {
 	.then((database) => {
 		let keys = Object.keys(database)
 		let vals = Object.values(database)
+		let lookup = message.mentions.users.first() == undefined ? message.author.id : message.mentions.users.first().id
 
 		for (let i = 0; i < keys.length; i++) {
-			if (keys[i] == message.author.id) {
+			if (keys[i] == lookup) {
 				user = vals[i]
 			}
 		}

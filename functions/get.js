@@ -1,16 +1,17 @@
 // THIS FUNCTION SERVES TO MAKE REQUESTS TO SPEEDRUN.COM
 
-module.exports = async function get(type, value) {
-	console.log(`(${id}) http://www.speedrun.com/api/v1/${type}${value}`) // SWITCH TO HTTPS IN 0.5.0
+module.exports = async function get(type, additional) {
+	console.log(`(${id}) GETTING: https://www.speedrun.com/api/v1/${type}?${additional}`)
+
 	const axios = require("axios")
 	const resp = await axios({
-		method: "POST",
-		url: `http://www.speedrun.com/api/v1/${type}${value}`, // SWITCH TO HTTPS IN 0.5.0
+		method: "get",
+		baseURL: "https://www.speedrun.com/api/v1/",
+		url: `/${type}?${additional}`, // SWITCH TO HTTPS IN 0.5.0
 		headers: {
 			"Content-Type": "application/json",
 			"Accept": "application/json",
-			"User-Agent": "Kiiresti/0.4.2",
-			//"X-API-Key": process.env.SPEEDRUN_TOKEN
+			"User-Agent": "Kiiresti/0.5.0",
 		}
 	})
 	return resp.data.data

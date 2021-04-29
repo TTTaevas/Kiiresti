@@ -50,19 +50,23 @@ module.exports = message => {
 			// SECOND GET THEIR RECENT RUN ON THE GAME & CATEGORY
 			// THIRD GET EVERYTHING ELSE
 
-			let speedrun_user_promise = new Promise((resolve, reject) => {resolve(get("users", `?lookup=${user}`))})
+			let speedrun_user_promise = new Promise((resolve, reject) => {resolve(get("users", `lookup=${user}`))})
 			.then((speedrun_user) => { // Get the user's id, required to get the user's runs
 				
 				for (let i = 0; i < speedrun_user.length; i++) {if (speedrun_user[i].names.international == user) {user_info = speedrun_user[i]}}
 				if (user_info == undefined) {return message.channel.send(`${message.author} I may be blind, but ${user} doesn't seem to exist...`)}
 
-				let recent_promise = new Promise((resolve, reject) => {resolve(get("runs", `?user=${user_info.id}&game=${game}&category=${category}&orderby=date&direction=desc`))})
+				let recent_promise = new Promise((resolve, reject) => {resolve(get("runs", `user=${user_info.id}&game=${game}&category=${category}&orderby=date&direction=desc`))})
 				.then((recent) => { // Get the user's runs on this specific game & category
 
 					let temp_arr = []
 					for (let e = 0; e < recent.length; e++) {
-						for (let o = 0; o < Object.values(recent[e].values).length; o++) {
-							if (sub_category == Object.values(recent[e].values)[o]) {temp_arr.push(recent[e])}
+						if (sub_category != undefined && Object.values(recent[e].values).length > 0) {
+							for (let o = 0; o < Object.values(recent[e].values).length; o++) {
+								if (sub_category == Object.values(recent[e].values)[o]) {temp_arr.push(recent[e])}
+							}
+						} else {
+							temp_arr.push(recent[e])
 						}
 					}
 					recent = temp_arr
@@ -71,7 +75,7 @@ module.exports = message => {
 					let run = recent[0]
 
 					// Don't get the category directly, because the game has important data, such as the embed's thumbnail
-					let game_promise = new Promise((resolve, reject) => {resolve(get("games", `/${run.game}?embed=categories.variables`))})
+					let game_promise = new Promise((resolve, reject) => {resolve(get(`games/${run.game}`, `embed=categories.variables`))})
 					.then((game) => {
 						let categories = game.categories.data
 						var category

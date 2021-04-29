@@ -6,9 +6,9 @@ const top = require('../commands/top')
 prefix = '>ki'
 
 module.exports = (client, message) => {
-	//if (message.content.startsWith(`${prefix} h`)) {
-	//	return help(message)
-	//}
+	if (message.content.startsWith(`${prefix} h`)) {
+		return help(message)
+	}
 	if (message.content.startsWith(`${prefix} u`)) {
 		return user(message)
 	}

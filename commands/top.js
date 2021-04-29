@@ -44,7 +44,7 @@ module.exports = message => {
 		
 		let game_title = msg[2].replace(/_/g, " ")
 
-		let game_promise = new Promise((resolve, reject) => {resolve(get("games", `?name=${game_title}&embed=categories`))})
+		let game_promise = new Promise((resolve, reject) => {resolve(get("games", `name=${game_title}&embed=categories`))})
 		.then((game) => {
 
 			if (game.length <= 0) {return message.channel.send(`${message.author} My apologies, but I couldn't find the game "${game_title}"...`)}
@@ -70,7 +70,7 @@ module.exports = message => {
 				category = game.categories.data[0] // Just pick the first category if the user didn't specify one
 			}
 
-			let sub_cat_promise = new Promise((resolve, reject) => {resolve(get("categories", `/${category.id}/variables`))})
+			let sub_cat_promise = new Promise((resolve, reject) => {resolve(get(`categories/${category.id}/variables`, ``))})
 			.then((details) => {
 
 				var sub_category = [undefined, undefined]
@@ -105,7 +105,7 @@ module.exports = message => {
 function find_top_scores(message, game, category, sub_category) {
 	const get = require('../functions/get.js')
 
-	let leaderboard_promise = new Promise((resolve, reject) => {resolve(get("leaderboards", `/${game}/category/${category}?embed=players`))})
+	let leaderboard_promise = new Promise((resolve, reject) => {resolve(get(`leaderboards/${game}/category/${category}`, `embed=players`))})
 	.then((leaderboard) => { // Get ALL the runs on the game & category
 		// It is truly a large amount of data for certain cases, but using "top" to limit the data is useless in our case
 		// If a category has a lot of runs, and the target sub category takes the longest time to run,
@@ -131,7 +131,7 @@ function find_top_scores(message, game, category, sub_category) {
 
 		if (leaderboard.runs.length <= 0) {return message.channel.send(`${message.author} It doesn't seem like any run was made for that...`)}
 
-		let game_promise = new Promise((resolve, reject) => {resolve(get("games", `/${game}?embed=categories`))})
+		let game_promise = new Promise((resolve, reject) => {resolve(get(`games/${game}`, `embed=categories`))})
 		.then((game) => {
 			let categories = game.categories.data
 

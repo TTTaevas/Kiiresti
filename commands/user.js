@@ -11,7 +11,7 @@ module.exports = message => {
 	let currentDate = new Date()
 	console.log(`\n---------${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} | ${id}---------`)
 	
-	let speedrun_user_promise = new Promise((resolve, reject) => {resolve(get("users", `?lookup=${user}`))})
+	let speedrun_user_promise = new Promise((resolve, reject) => {resolve(get("users", `lookup=${user}`))})
 	.then((speedrun_user) => {
 		
 		var user_info

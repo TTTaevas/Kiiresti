@@ -42,22 +42,42 @@ module.exports = message => {
 
 	} else { // Get the top runs for the game & category given as arguments
 		
-		let game_title = msg[2].replace(/_/g, " ")
+		let game_stuff = ["", "", "", ""] // [GAME, CATEGORY, SUBCATEGORY, LEVEL]
+		let what_game_stuff = -1
 
-		let game_promise = new Promise((resolve, reject) => {resolve(get("games", `name=${game_title}&embed=categories`))})
+		for (let i = 0; i < msg.length; i++) {
+
+			if (/-[a-z]/g.test(msg[i]) && msg[i].length == 2) {what_game_stuff = -1}
+
+			if (what_game_stuff != -1) {game_stuff[what_game_stuff] += `${msg[i].toLowerCase()} `}
+
+			if (msg[i] == "-g") {what_game_stuff = 0}
+			if (msg[i] == "-c") {what_game_stuff = 1}
+			if (msg[i] == "-s") {what_game_stuff = 2}
+			if (msg[i] == "-l") {what_game_stuff = 3}
+
+			if (i + 1 == msg.length) {
+				for (let e = 0; e < game_stuff.length; e++) {
+					if (game_stuff[e].length > 0) {game_stuff[e] = game_stuff[e].substring(0, game_stuff[e].length - 1)}
+				}
+			}
+
+		}
+
+		let game_promise = new Promise((resolve, reject) => {resolve(get("games", `name=${game_stuff[0]}&embed=categories`))})
 		.then((game) => {
 
-			if (game.length <= 0) {return message.channel.send(`${message.author} My apologies, but I couldn't find the game "${game_title}"...`)}
+			if (game.length <= 0) {return message.channel.send(`${message.author} My apologies, but I couldn't find the game "${game_stuff[0]}"...`)}
 
 			game = game[0]
 			var category
 
-			if (msg.length >= 4) {
+			if (game_stuff[1].length > 0) {
 				let categories = game.categories.data
 				let cat_exists = false
 
 				for (let i = 0; i < categories.length; i++) {
-					if (msg[3].replace(/_/g, " ") == categories[i].name) {
+					if (game_stuff[1] == categories[i].name.toLowerCase()) {
 						category = categories[i]
 						cat_exists = true
 						i = categories.length
@@ -74,7 +94,7 @@ module.exports = message => {
 			.then((details) => {
 
 				var sub_category = [undefined, undefined]
-				var objective = msg.length >= 5 ? msg[4].replace(/_/g, " ") : false
+				var objective = game_stuff[2].length > 0 ? game_stuff[2] : false
 
 				for (let i = 0; i < details.length; i++) {
 					if (details[i]["is-subcategory"]) {
@@ -84,8 +104,8 @@ module.exports = message => {
 							sub_category[1] = Object.values(values)[0].label
 							i = details.length
 						} else {
-							for (let e = 0; e < values.length; e++) {
-								if (values[e].label == objective) {
+							for (let e = 0; e < Object.keys(values).length; e++) {
+								if (Object.values(values)[e].label.toLowerCase() == objective) {
 									sub_category[0] = Object.keys(values)[e]
 									sub_category[1] = Object.values(values)[e].label
 									i = details.length

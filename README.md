@@ -24,9 +24,9 @@ This allows you to "associate" your Discord account to a speedrun.com user, mean
 
 That command works the same way as `>ki recent`, except that it gets runs only from the last game and category seen in that same Discord channel. For example, if "USER_A" does `>ki recent` to get their run on [https://www.speedrun.com/tmnf#White](TMNF (White)) into the #bot-spam channel, "USER_B" can use `>ki compare` to get their own run on that same game and category, in that same channel.
 
-### >ki top <game> <category>
+### >ki top (followed by your arguments)
 
-That allows you to get the top 10 best runs on a game and a category. If the `category` argument is omitted, the bot will get the runs from the first category of the game. If the `game` argument is also omitted, then the bot will instead get the best runs of the game and category that was last shown in that discord channel by, for example, someone using `>ki recent`.
+That allows you to get the top 10 best runs on anything. Use `>ki help top` to understand how to use arguments with that command. If arguments are omitted, the bot will instead get the best runs of what was last shown in that discord channel by, for example, someone using `>ki recent`.
 
 ## Misc
 

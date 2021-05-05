@@ -1,10 +1,11 @@
-![](https://slippy.xyz/files/35269171-ad77-4bba-af37-36d347f0af09)
+![](https://slippy.xyz/files/f8dd6905-0124-46c6-a9b6-df80cf41df27)
+[![Node.js CI](https://github.com/TTTaevas/Kiiresti/actions/workflows/node.js.yml/badge.svg)](https://github.com/TTTaevas/Kiiresti/actions/workflows/node.js.yml)
 
 # Kiiresti
 
 Kiiresti is an open-source Discord bot you can use to get content from [speedrun.com](https://www.speedrun.com) onto your Discord server.
 
-*note that it is currently under development, so everything is subject to change, including this README file*
+*note that it is currently under development on [this Discord Server](https://discord.gg/ZcKbgqxq2C), so everything is subject to change, including this README file*
 
 ## Commands
 

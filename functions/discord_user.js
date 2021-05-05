@@ -6,10 +6,10 @@ module.exports = async function discord_user(msg, message) {
 	
 	if (msg.length >= 3 && message.mentions.users.first() == undefined) {return msg[2]}
 
-	if (!fs.existsSync("./database.json")) {return undefined}
+	if (!fs.existsSync("./data/database.json")) {return undefined}
 
 	let database_promise = await new Promise((resolve, reject) => {
-		fs.readFile("./database.json", function(error, data) {
+		fs.readFile("./data/database.json", function(error, data) {
 			if (error) {throw error}
 			resolve(JSON.parse(data))
 		})

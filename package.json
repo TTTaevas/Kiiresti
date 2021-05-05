@@ -1,6 +1,6 @@
 {
   "name": "kiiresti",
-  "version": "0.4.2",
+  "version": "0.6.0",
   "description": "Discord bot interacting with the speedrun.com API",
   "main": "index.js",
   "scripts": {

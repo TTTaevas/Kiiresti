@@ -7,10 +7,10 @@ module.exports = message => {
 	const embed_normal = require('../functions/embed_normal.js')
 	const msg = message.content.split(" ")
 
-	if (!fs.existsSync("./last_runs.json")) {return message.channel.send(`${message.author} There is no run to compare in this channel!`)}
+	if (!fs.existsSync("./data/last_runs.json")) {return message.channel.send(`${message.author} There is no run to compare in this channel!`)}
 
 	let last_runs_promise = new Promise((resolve, reject) => {
-		fs.readFile("./last_runs.json", function(error, data) {
+		fs.readFile("./data/last_runs.json", function(error, data) {
 			if (error) {throw error}
 			resolve(JSON.parse(data))
 		})
@@ -38,10 +38,6 @@ module.exports = message => {
 		.then((user) => {
 			
 			if (!user) {return message.reply("you have not yet associated your Discord account to a speedrun.com account!")}
-
-			id = Math.floor((Math.random() * 999999) + 1)
-			let currentDate = new Date()
-			console.log(`\n---------${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} | ${id}---------`)
 
 			var user_info
 			var run

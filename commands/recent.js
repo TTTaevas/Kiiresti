@@ -9,10 +9,6 @@ module.exports = message => {
 		
 		if (!user) {return message.reply("you have not yet associated your Discord account to a speedrun.com account!")}
 
-		id = Math.floor((Math.random() * 999999) + 1)
-		let currentDate = new Date()
-		console.log(`\n---------${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} | ${id}---------`)
-
 		var user_info
 		var run
 
@@ -67,16 +63,12 @@ module.exports = message => {
 }
 
 function store(channel, game, category, sub_category, sub_category_name) { // Stores the last run on the channel so it can be compared to by users
+	const check_data = require('../functions/check_data.js')
 	const fs = require('fs')
 
 	let last_runs_promise = new Promise(async (resolve, reject) => {
-		if (!fs.existsSync("./last_runs.json")) {
-			await fs.writeFile("./last_runs.json", '[]', function(error) {
-				if (error) {throw error}
-				console.log(`(${id}) The last_runs file has been created!`)
-			})
-		}
-		fs.readFile("./last_runs.json", function(error, data) {
+		await check_data("last_runs.json")
+		fs.readFile("./data/last_runs.json", function(error, data) {
 			if (error) {throw error}
 			resolve(JSON.parse(data))
 		})
@@ -108,6 +100,6 @@ function store(channel, game, category, sub_category, sub_category_name) { // St
 			console.log(`(${id}) Channel ${channel} has been ADDED to the last_runs file`)
 		}
 
-		fs.writeFile("./last_runs.json", last_runs, function(error) {if (error) {throw error}})
+		fs.writeFile("./data/last_runs.json", last_runs, function(error) {if (error) {throw error}})
 	})
 }

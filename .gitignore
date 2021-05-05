@@ -1,4 +1,5 @@
 *.env
 node_modules/
+data/
 database.json
 last_runs.json

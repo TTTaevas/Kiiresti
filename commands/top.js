@@ -3,17 +3,13 @@ module.exports = message => {
 	const get = require('../functions/get.js')
 	const fs = require('fs')
 
-	id = Math.floor((Math.random() * 999999) + 1)
-	let currentDate = new Date()
-	console.log(`\n---------${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()} | ${id}---------`)
-
 	let msg = message.content.split(" ")
 	if (msg.length == 2) { // Get the top runs for the last game/category shown on this channel
 
-		if (!fs.existsSync("./last_runs.json")) {return message.channel.send(`${message.author} You should tell me what's the game you want to see runs from...`)}
+		if (!fs.existsSync("./data/last_runs.json")) {return message.channel.send(`${message.author} You should tell me what's the game you want to see runs from...`)}
 
 		let last_runs_promise = new Promise((resolve, reject) => {
-			fs.readFile("./last_runs.json", function(error, data) {
+			fs.readFile("./data/last_runs.json", function(error, data) {
 				if (error) {throw error}
 				resolve(JSON.parse(data))
 			})

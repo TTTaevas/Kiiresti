@@ -7,11 +7,11 @@ module.exports = async function get(type, additional) {
 	const resp = await axios({
 		method: "get",
 		baseURL: "https://www.speedrun.com/api/v1/",
-		url: `/${type}?${additional}`, // SWITCH TO HTTPS IN 0.5.0
+		url: `/${type}?${additional}`,
 		headers: {
 			"Content-Type": "application/json",
 			"Accept": "application/json",
-			"User-Agent": "Kiiresti/0.5.0",
+			"User-Agent": "Kiiresti/0.6.0",
 		}
 	})
 	return resp.data.data

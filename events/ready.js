@@ -23,7 +23,7 @@ module.exports = client => {
 					process.exit(1)
 			}
 
-			let delay = 4000
+			let delay = 5000
 			let commands = [
 				"compare",
 				"top",
@@ -38,8 +38,15 @@ module.exports = client => {
 			]
 
 			for (let i = 0; i < commands.length; i++) {
-				setTimeout(function() {console.log(`\n\n(${(delay * (i + 1)) / 1000}s) TESTING: ${prefix} ${commands[i]}`)}, (delay - 100) * (i + 1))
-				setTimeout(function() {client.channels.cache.get(chan).send(`${prefix} ${commands[i]}`)}, delay * (i + 1))
+				setTimeout(function() {
+					let currentDate = new Date()
+					console.log(`\n\n(${(delay * (i + 1)) / 1000}s, ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}) SENDING: ${prefix} ${commands[i]}`)
+				}, (delay * (i + 1)) - 100)
+				setTimeout(function() {
+					currentDate = new Date()
+					client.channels.cache.get(chan).send(`${prefix} ${commands[i]}`)
+					.then(console.log(`(${(delay * (i + 1)) / 1000}s, ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}) SENT FOR TESTING PURPOSES: ${prefix} ${commands[i]}`))
+				}, delay * (i + 1))
 			}
 
 			setTimeout(function() {process.exit(0)}, delay * (commands.length + 3))

@@ -1,6 +1,6 @@
 // THIS FUNCTION SERVES TO MAKE REQUESTS TO SPEEDRUN.COM
 
-module.exports = async function get(type, additional) {
+module.exports = async function get(type, additional, id) {
 	console.log(`(${id}) GETTING: https://www.speedrun.com/api/v1/${type}?${additional}`)
 
 	const axios = require("axios")

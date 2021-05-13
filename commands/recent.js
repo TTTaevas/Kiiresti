@@ -1,4 +1,4 @@
-module.exports = async message => {
+module.exports = async (message, id) => {
 
 	const get = require('../functions/get.js')
 	const discord_user = require('../functions/discord_user.js')
@@ -11,12 +11,12 @@ module.exports = async message => {
 			
 		if (!user) {
 			message.reply("you have not yet associated your Discord account to a speedrun.com account!")
-			return resolve(`Could not recent, no user associated to ${message.author}`)
+			return resolve(`Could not recent, no user associated to ${message.author} / ${message.author.tag}`)
 		}
 
 		var user_info
 
-		let speedrun_user = await get("users", `lookup=${user}`)
+		let speedrun_user = await get("users", `lookup=${user}`, id)
 				
 		for (let i = 0; i < speedrun_user.length; i++) {if (speedrun_user[i].names.international == user) {user_info = speedrun_user[i]}}
 		if (user_info == undefined) {
@@ -24,7 +24,7 @@ module.exports = async message => {
 			return resolve(`Could not recent, specified user (${user}) doesn't exist`)
 		}
 
-		let recent_all = await get("runs", `user=${user_info.id}&orderby=date&direction=desc`)
+		let recent_all = await get("runs", `user=${user_info.id}&orderby=date&direction=desc`, id)
 
 		if (recent_all.length <= 0) {
 			message.channel.send(`${message.author} ${user_info.names.international} doesn't seem to have made any run yet...`)
@@ -32,8 +32,8 @@ module.exports = async message => {
 		}
 		let run = recent_all[0]
 
-		let recent_promise = new Promise((resolve, reject) => {resolve(get("runs", `user=${user_info.id}&game=${run.game}&category=${run.category}&orderby=date&direction=desc`))})
-		let game_promise = new Promise((resolve, reject) => {resolve(get(`games/${run.game}`, `embed=categories.variables`))})
+		let recent_promise = new Promise((resolve, reject) => {resolve(get("runs", `user=${user_info.id}&game=${run.game}&category=${run.category}&orderby=date&direction=desc`, id))})
+		let game_promise = new Promise((resolve, reject) => {resolve(get(`games/${run.game}`, `embed=categories.variables`, id))})
 
 		let values = await Promise.all([recent_promise, game_promise])
 
@@ -50,18 +50,18 @@ module.exports = async message => {
 		let details = treat_details(run.values, category.variables.data)
 
 		await embed_normal(message, run, user_info, values[0], values[1], category, details)
-		await store(message.channel.id, run.game, run.category, details[1].id, details[1].name)
+		await store(message.channel.id, run.game, run.category, details[1].id, details[1].name, id)
 		return resolve(`Sent the user's most recent run!`)
 
 	})
 
 }
 
-async function store(channel, game, category, sub_category, sub_category_name) { // Stores the last run on the channel so it can be compared to by users
+async function store(channel, game, category, sub_category, sub_category_name, id) { // Stores the last run on the channel so it can be compared to by users
 	const check_data = require('../functions/check_data.js')
 	const fs = require('fs')
 
-	await check_data("last_runs.json")
+	await check_data("last_runs.json", id)
 	let last_runs = await JSON.parse(await fs.promises.readFile("./data/last_runs.json"))
 
 	let exists = false

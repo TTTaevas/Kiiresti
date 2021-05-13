@@ -1,4 +1,4 @@
-module.exports = async message => {
+module.exports = async (message, id) => {
 
 	const Discord = require('discord.js')
 
@@ -60,9 +60,7 @@ module.exports = async message => {
 						}
 
 						await message.channel.send(to_send)
-						.then((a) => {
-							messages_sent++
-						})
+						.then(messages_sent++)
 
 					}
 				}

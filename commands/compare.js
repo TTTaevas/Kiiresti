@@ -1,4 +1,4 @@
-module.exports = async message => {
+module.exports = async (message, id) => {
 
 	const fs = require('fs')
 	const get = require('../functions/get.js')
@@ -40,11 +40,11 @@ module.exports = async message => {
 				
 		if (!user) {
 			message.reply("you have not yet associated your Discord account to a speedrun.com account!")
-			return resolve(`Could not compare, no user associated to ${message.author}`)
+			return resolve(`Could not compare, no user associated to ${message.author} / ${message.author.tag}`)
 		}
 
 		var user_info
-		let speedrun_user = await get("users", `lookup=${user}`)
+		let speedrun_user = await get("users", `lookup=${user}`, id)
 					
 		for (let i = 0; i < speedrun_user.length; i++) {if (speedrun_user[i].names.international == user) {user_info = speedrun_user[i]}}
 		if (user_info == undefined) {
@@ -52,7 +52,7 @@ module.exports = async message => {
 			return resolve(`Could not compare, specified user (${user}) doesn't exist`)
 		}
 
-		let recent = await get("runs", `user=${user_info.id}&game=${last_game}&category=${last_category}&orderby=date&direction=desc`)
+		let recent = await get("runs", `user=${user_info.id}&game=${last_game}&category=${last_category}&orderby=date&direction=desc`, id)
 
 		let temp_arr = []
 		for (let e = 0; e < recent.length; e++) {
@@ -72,7 +72,7 @@ module.exports = async message => {
 		}
 		let run = recent[0]
 
-		let game = await get(`games/${run.game}`, `embed=categories.variables`)
+		let game = await get(`games/${run.game}`, `embed=categories.variables`, id)
 		let categories = game.categories.data
 		var category
 

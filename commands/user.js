@@ -1,4 +1,4 @@
-module.exports = async message => {
+module.exports = async (message, id) => {
 
 	const get = require('../functions/get.js')
 	const check_data = require('../functions/check_data.js')
@@ -13,7 +13,7 @@ module.exports = async message => {
 		}
 		const user = msg[2]
 		
-		let speedrun_user = await get("users", `lookup=${user}`)
+		let speedrun_user = await get("users", `lookup=${user}`, id)
 			
 		var user_info
 		for (let i = 0; i < speedrun_user.length; i++) {if (speedrun_user[i].names.international == user) {user_info = speedrun_user[i]}}
@@ -22,7 +22,7 @@ module.exports = async message => {
 			return resolve(`Could not associate user, specified user (${user}) doesn't exist`)
 		}
 
-		await check_data("database.json")
+		await check_data("database.json", id)
 		let database = await JSON.parse(await fs.promises.readFile("./data/database.json"))
 
 		let keys = Object.keys(database)

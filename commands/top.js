@@ -1,4 +1,4 @@
-module.exports = message => {
+module.exports = async message => {
 
 	const get = require('../functions/get.js')
 	const fs = require('fs')
@@ -6,35 +6,33 @@ module.exports = message => {
 	let msg = message.content.split(" ")
 	if (msg.length == 2) { // Get the top runs for the last game/category shown on this channel
 
-		if (!fs.existsSync("./data/last_runs.json")) {return message.channel.send(`${message.author} You should tell me what's the game you want to see runs from...`)}
+		if (!fs.existsSync("./data/last_runs.json")) {
+			message.channel.send(`${message.author} You should tell me what's the game you want to see runs from...`)
+			return `Could not top, there is no game in the data`
+		}
+		let last_runs = await JSON.parse(await fs.promises.readFile("./data/last_runs.json"))
 
-		let last_runs_promise = new Promise((resolve, reject) => {
-			fs.readFile("./data/last_runs.json", function(error, data) {
-				if (error) {throw error}
-				resolve(JSON.parse(data))
-			})
-		})
-		.then((last_runs) => {
+		var game
+		var category
+		var sub_category
+		let exists = false
 
-			var game
-			var category
-			var sub_category
-			let exists = false
-
-			for (let i = 0; i < last_runs.length; i++) {
-				if (last_runs[i].channel == message.channel) {
-					game = last_runs[i].game
-					category = last_runs[i].category
-					sub_category = [last_runs[i].sub_category, last_runs[i].sub_category_name]
-					exists = true
-					i = last_runs.length
-				}
+		for (let i = 0; i < last_runs.length; i++) {
+			if (last_runs[i].channel == message.channel) {
+				game = last_runs[i].game
+				category = last_runs[i].category
+				sub_category = [last_runs[i].sub_category, last_runs[i].sub_category_name]
+				exists = true
+				i = last_runs.length
 			}
+		}
 
-			if (!exists) {return message.channel.send(`${message.author} You should tell me what's the game you want to see runs from...`)}
+		if (!exists) {
+			message.channel.send(`${message.author} You should tell me what's the game you want to see runs from...`)
+			return `Could not top, no run in channel ${message.channel}`
+		}
 
-			find_top_scores(message, game, category, sub_category)
-		})
+		await find_top_scores(message, game, category, sub_category)
 
 	} else { // Get the top runs for the game & category given as arguments
 		
@@ -60,108 +58,106 @@ module.exports = message => {
 
 		}
 
-		let game_promise = new Promise((resolve, reject) => {resolve(get("games", `name=${game_stuff[0]}&embed=categories`))})
-		.then((game) => {
+		let game = await get("games", `name=${game_stuff[0]}&embed=categories`)
 
-			if (game.length <= 0) {return message.channel.send(`${message.author} My apologies, but I couldn't find the game "${game_stuff[0]}"...`)}
+		if (game.length <= 0) {return message.channel.send(`${message.author} My apologies, but I couldn't find the game "${game_stuff[0]}"...`)}
+		game = game[0]
+		
+		var category
 
-			game = game[0]
-			var category
-
-			if (game_stuff[1].length > 0) {
-				let categories = game.categories.data
-				let cat_exists = false
-
-				for (let i = 0; i < categories.length; i++) {
-					if (game_stuff[1] == categories[i].name.toLowerCase()) {
-						category = categories[i]
-						cat_exists = true
-						i = categories.length
-					}
-				}
-
-				if (!cat_exists) {return message.channel.send(`${message.author} The category you specified doesn't seem to exist!`)}
-					
-			} else {
-				category = game.categories.data[0] // Just pick the first category if the user didn't specify one
-			}
-
-			let sub_cat_promise = new Promise((resolve, reject) => {resolve(get(`categories/${category.id}/variables`, ``))})
-			.then((details) => {
-
-				var sub_category = [undefined, undefined]
-				var objective = game_stuff[2].length > 0 ? game_stuff[2] : false
-
-				for (let i = 0; i < details.length; i++) {
-					if (details[i]["is-subcategory"]) {
-						let values = details[i].values.values
-						if (!objective) {
-							sub_category[0] = Object.keys(values)[0]
-							sub_category[1] = Object.values(values)[0].label
-							i = details.length
-						} else {
-							for (let e = 0; e < Object.keys(values).length; e++) {
-								if (Object.values(values)[e].label.toLowerCase() == objective) {
-									sub_category[0] = Object.keys(values)[e]
-									sub_category[1] = Object.values(values)[e].label
-									i = details.length
-								}
-							}
-						}
-					}
-				}
-
-				find_top_scores(message, game.id, category.id, sub_category)
-
-			})
-		})
-	}
-}
-
-function find_top_scores(message, game, category, sub_category) {
-	const get = require('../functions/get.js')
-
-	let leaderboard_promise = new Promise((resolve, reject) => {resolve(get(`leaderboards/${game}/category/${category}`, `embed=players`))})
-	.then((leaderboard) => { // Get ALL the runs on the game & category
-		// It is truly a large amount of data for certain cases, but using "top" to limit the data is useless in our case
-		// If a category has a lot of runs, and the target sub category takes the longest time to run,
-		// then using "top" would indirectly remove the runs of the target sub category from the data
-
-		if (sub_category[0] && sub_category[0] != "undefined") {
-			for (let e = 0; e < leaderboard.runs.length; e++) {
-				let to_keep = false
-
-				for (let o = 0; o < Object.values(leaderboard.runs[e].run.values).length; o++) {
-					if (sub_category[0] == Object.values(leaderboard.runs[e].run.values)[o]) {to_keep = true}
-				}
-
-				if (!to_keep) {
-					leaderboard.runs[e] = undefined
-					leaderboard.players.data[e] = undefined
-				}
-			}
-
-			leaderboard.runs = leaderboard.runs.filter(function(i) {return i != undefined})
-			leaderboard.players.data = leaderboard.players.data.filter(function(i) {return i != undefined})
-		}
-
-		if (leaderboard.runs.length <= 0) {return message.channel.send(`${message.author} It doesn't seem like any run was made for that...`)}
-
-		let game_promise = new Promise((resolve, reject) => {resolve(get(`games/${game}`, `embed=categories`))})
-		.then((game) => {
+		if (game_stuff[1].length > 0) {
 			let categories = game.categories.data
+			let cat_exists = false
 
 			for (let i = 0; i < categories.length; i++) {
-				if (categories[i].id == category) {
-					embed_top(message, leaderboard, game, categories[i], sub_category)
+				if (game_stuff[1] == categories[i].name.toLowerCase()) {
+					category = categories[i]
+					cat_exists = true
 					i = categories.length
 				}
 			}
-		})
-	})
+
+			if (!cat_exists) {
+				message.channel.send(`${message.author} The category you specified doesn't seem to exist!`)
+				return `Could not top, specified category doesn't exist`
+			}
+					
+		} else {
+			category = game.categories.data[0] // Just pick the first category if the user didn't specify one
+		}
+
+		let details = await get(`categories/${category.id}/variables`, ``)
+
+		var sub_category = [undefined, undefined]
+		var objective = game_stuff[2].length > 0 ? game_stuff[2] : false
+
+		for (let i = 0; i < details.length; i++) {
+			if (details[i]["is-subcategory"]) {
+				let values = details[i].values.values
+				if (!objective) {
+					sub_category[0] = Object.keys(values)[0]
+					sub_category[1] = Object.values(values)[0].label
+					i = details.length
+				} else {
+					for (let e = 0; e < Object.keys(values).length; e++) {
+						if (Object.values(values)[e].label.toLowerCase() == objective) {
+							sub_category[0] = Object.keys(values)[e]
+							sub_category[1] = Object.values(values)[e].label
+							i = details.length
+						}
+					}
+				}
+			}
+		}
+
+		await find_top_scores(message, game.id, category.id, sub_category)
+
+	}
+
+	return `Sent the leaderboards!`
 }
 
-function embed_top(message, top, game, category, sub_category) {
+async function find_top_scores(message, game, category, sub_category) {
+	const get = require('../functions/get.js')
+
+	let leaderboard = await get(`leaderboards/${game}/category/${category}`, `embed=players`)
+	// Get ALL the runs on the game & category
+	// It is truly a large amount of data for certain cases, but using "top" argument to limit the data is useless in our case
+	// If a category has a lot of runs, and the target sub category takes the longest time to run,
+	// then using "top" would indirectly remove the runs of the target sub category from the data
+
+	if (sub_category[0] && sub_category[0] != "undefined") {
+		for (let e = 0; e < leaderboard.runs.length; e++) {
+			let to_keep = false
+
+			for (let o = 0; o < Object.values(leaderboard.runs[e].run.values).length; o++) {
+				if (sub_category[0] == Object.values(leaderboard.runs[e].run.values)[o]) {to_keep = true}
+			}
+
+			if (!to_keep) {
+				leaderboard.runs[e] = undefined
+				leaderboard.players.data[e] = undefined
+			}
+		}
+	}
+
+	leaderboard.runs = leaderboard.runs.filter(function(i) {return i != undefined})
+	leaderboard.players.data = leaderboard.players.data.filter(function(i) {return i != undefined})
+
+	if (leaderboard.runs.length <= 0) {return message.channel.send(`${message.author} It doesn't seem like any run was made for that...`)}
+
+	let game_2 = await get(`games/${game}`, `embed=categories`)
+	let categories = game_2.categories.data
+
+	for (let i = 0; i < categories.length; i++) {
+		if (categories[i].id == category) {
+			await embed_top(message, leaderboard, game_2, categories[i], sub_category)
+			i = categories.length
+		}
+	}
+}
+
+async function embed_top(message, top, game, category, sub_category) {
 	const Discord = require('discord.js')
 	const run_time = require('../functions/run_time.js')
 
@@ -187,5 +183,5 @@ function embed_top(message, top, game, category, sub_category) {
 		if (i >= 9) {i = top.runs.length} // Only top 10
 	}
 
-	message.channel.send(to_send)
+	await message.channel.send(to_send)
 }

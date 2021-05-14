@@ -49,8 +49,8 @@ module.exports = async (message, id) => {
 
 		let details = treat_details(run.values, category.variables.data)
 
+		store(message.channel.id, run.game, run.category, details[1].id, details[1].name, id)
 		await embed_normal(message, run, user_info, values[0], values[1], category, details)
-		await store(message.channel.id, run.game, run.category, details[1].id, details[1].name, id)
 		return resolve(`Sent the user's most recent run!`)
 
 	})

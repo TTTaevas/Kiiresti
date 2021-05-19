@@ -1,7 +1,11 @@
-module.exports = client => {
+module.exports = async client => {
  	console.log(`Kiiresti is now ready to operate on "${client.user.tag}"`)
  	client.user.setPresence({activity: {type: "WATCHING", name: "your speedruns"}})
 	.catch(console.error)
+
+	const check_data = require('../functions/check_data.js')
+	await check_data("database.json", "ON_READY")
+	await check_data("last_runs.json", "ON_READY")
 
 	if (process.argv.length == 3) {
 		if (process.argv[2] == "-test") {
@@ -18,9 +22,11 @@ module.exports = client => {
 				case "15":
 					chan = "824718639445311488"
 					break
+				case "16":
+					chan = "824718639445311488" // NEED TO MAKE NEW ONE EEEEEEEEEEEE
+					break
 				default:
-					console.log("Could not find node version in order to test Kiiresti")
-					process.exit(1)
+					throw `Could not find node version in order to test Kiiresti\n( ${user_agent} | ${user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)} )`
 			}
 
 			let delay = 5000

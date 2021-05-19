@@ -18,8 +18,7 @@ if (process.argv.length == 2) {
 	const user_agent = process.env.npm_config_user_agent
 	switch(user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)) {
 		case "10":
-			console.log("Discord.js cannot properly run on Node.js v10! Please use Node.js >=v12 instead.")
-			process.exit(1)
+			throw "Discord.js cannot properly run on Node.js v10! Please use Node.js >=v12 instead."
 		case "12":
 			token = process.env.NODE12_TOKEN
 			break
@@ -29,9 +28,11 @@ if (process.argv.length == 2) {
 		case "15":
 			token = process.env.NODE15_TOKEN
 			break
+		case "16":
+			token = process.env.NODE15_TOKEN // NEED TO MAKE NEW ONE EEEEEEEEEEEE
+			break
 		default:
-			console.log("Could not find node version for bot token")
-			process.exit(1)
+			throw `Could not find node version in order to test Kiiresti\n( ${user_agent} | ${user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)} )`
 	}
 }
 

@@ -16,23 +16,23 @@ if (process.argv.length == 2) {
 	token = process.env.BOT_TOKEN
 } else {
 	const user_agent = process.env.npm_config_user_agent
-	switch(user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)) {
-		case "10":
-			throw "Discord.js cannot properly run on Node.js v10! Please use Node.js >=v12 instead."
-		case "12":
-			token = process.env.NODE12_TOKEN
-			break
-		case "14":
-			token = process.env.NODE14_TOKEN
-			break
-		case "15":
-			token = process.env.NODE15_TOKEN
-			break
-		case "16":
-			token = process.env.NODE15_TOKEN // NEED TO MAKE NEW ONE EEEEEEEEEEEE
-			break
-		default:
-			throw `Could not find node version in order to test Kiiresti\n( ${user_agent} | ${user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)} )`
+	try {
+		const version = Number(user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8))
+		
+		if (version <= 10) {throw new Error("Discord.js cannot properly run on Node.js v<=10! Please use Node.js >=v12 instead.")}
+		if (version == 12) {token = process.env.NODE12_TOKEN}
+		if (version == 14) {token = process.env.NODE14_TOKEN}
+		if (version == 15) {token = process.env.NODE15_TOKEN}
+		if (version >= 16) {token = process.env.NODE16_TOKEN}
+		if (version >= 17) {
+			console.log(`
+			/!\\ WARNING /!\\
+			Node versions above 16 are not guaranteed to work.
+			Please contact Kiiresti's developer so they can add proper support!
+			( ${user_agent} | ${version} )\n`)
+		}
+	} catch(e) {
+		throw `Something went wrong with node version detection...\nUSER_AGENT: ${user_agent}\nERROR: ${e.message}`
 	}
 }
 

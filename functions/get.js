@@ -11,7 +11,7 @@ module.exports = async function get(type, additional, id) {
 		headers: {
 			"Content-Type": "application/json",
 			"Accept": "application/json",
-			"User-Agent": "Kiiresti/0.7.0",
+			"User-Agent": "Kiiresti/0.7.2",
 		}
 	})
 	return resp.data.data

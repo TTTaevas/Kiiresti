@@ -12,21 +12,15 @@ module.exports = async client => {
 			var chan
 			
 			const user_agent = process.env.npm_config_user_agent
-			switch (user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)) {
-				case "12":
-					chan = "824718578183438377"
-					break
-				case "14":
-					chan = "824718593325006919"
-					break
-				case "15":
-					chan = "824718639445311488"
-					break
-				case "16":
-					chan = "824718639445311488" // NEED TO MAKE NEW ONE EEEEEEEEEEEE
-					break
-				default:
-					throw `Could not find node version in order to test Kiiresti\n( ${user_agent} | ${user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8)} )`
+			try {
+				const version = Number(user_agent.substring(user_agent.indexOf("node/v") + 6, user_agent.indexOf("node/v") + 8))
+
+				if (version == 12) {chan = "824718578183438377"}
+				if (version == 14) {chan = "824718593325006919"}
+				if (version == 15) {chan = "824718639445311488"}
+				if (version >= 16) {chan = "845374022546882560"}
+			} catch(e) {
+				throw `Something went wrong with node version detection...\nUSER_AGENT: ${user_agent}\nERROR: ${e.message}`
 			}
 
 			let delay = 5000

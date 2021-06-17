@@ -19,6 +19,7 @@ module.exports = async (message, id) => {
 		var last_game
 		var last_category
 		var last_sub_category
+		var last_level
 		let exists = false
 
 		for (let i = 0; i < last_runs.length; i++) {
@@ -26,6 +27,7 @@ module.exports = async (message, id) => {
 				last_game = last_runs[i].game
 				last_category = last_runs[i].category
 				last_sub_category = last_runs[i].sub_category
+				last_level = last_runs[i].level
 				exists = true
 				i = last_runs.length
 			}
@@ -58,7 +60,7 @@ module.exports = async (message, id) => {
 		for (let e = 0; e < recent.length; e++) {
 			if (last_sub_category != undefined && Object.values(recent[e].values).length > 0) {
 				for (let o = 0; o < Object.values(recent[e].values).length; o++) {
-					if (last_sub_category == Object.values(recent[e].values)[o]) {temp_arr.push(recent[e])}
+					if (last_sub_category == Object.values(recent[e].values)[o] && last_level == recent[e].level) {temp_arr.push(recent[e])}
 				}
 			} else {
 				temp_arr.push(recent[e])
@@ -72,8 +74,14 @@ module.exports = async (message, id) => {
 		}
 		let run = recent[0]
 
-		let game = await get(`games/${run.game}`, `embed=categories.variables`, id)
-		let categories = game.categories.data
+		let game_promise = new Promise((resolve, reject) => {resolve(get(`games/${run.game}`, `embed=categories.variables`, id))})
+		let level_promise = new Promise((resolve, reject) => { // Too many levels, so better to do a separate request
+			run.level != undefined ? resolve(get(`levels/${run.level}`, ``, id)) : resolve(undefined)
+		})
+
+		let values = await Promise.all([game_promise, level_promise])
+
+		let categories = values[0].categories.data
 		var category
 
 		for (let e = 0; e < categories.length; e++) {
@@ -83,7 +91,7 @@ module.exports = async (message, id) => {
 			}
 		}
 
-		embed_normal(message, run, user_info, recent, game, category, undefined, treat_details(run.values, category.variables.data))
+		await embed_normal(message, run, user_info, recent, values[0], category, values[1], treat_details(run.values, category.variables.data))
 		return resolve(`Compared run!`)
 
 	})

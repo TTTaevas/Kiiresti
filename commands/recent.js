@@ -41,7 +41,7 @@ module.exports = async (message, id) => {
 		})
 		let game_promise = new Promise((resolve, reject) => {resolve(get(`games/${run.game}`, `embed=categories.variables`, id))})
 		let level_promise = new Promise((resolve, reject) => { // Too many levels, so better to do a separate request
-			run.level != undefined ? resolve(get(`levels/${run.level}`), ``) : resolve(undefined)
+			run.level != undefined ? resolve(get(`levels/${run.level}`, ``, id)) : resolve(undefined)
 		})
 
 		let values = await Promise.all([recent_promise, game_promise, level_promise])

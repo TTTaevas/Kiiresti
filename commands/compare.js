@@ -83,7 +83,7 @@ module.exports = async (message, id) => {
 			}
 		}
 
-		embed_normal(message, run, user_info, recent, game, category, treat_details(run.values, category.variables.data))
+		embed_normal(message, run, user_info, recent, game, category, undefined, treat_details(run.values, category.variables.data))
 		return resolve(`Compared run!`)
 
 	})

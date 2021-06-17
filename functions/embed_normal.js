@@ -1,6 +1,6 @@
 // THIS FUNCTION SERVES TO SEND NORMAL EMBED MESSAGES
 
-module.exports = function embed_normal(message, run, user, recent, game, category, details) {
+module.exports = function embed_normal(message, run, user, recent, game, category, level, details) {
 	const Discord = require('discord.js')
 	const run_time = require('../functions/run_time.js')
 	const treat_details = require('../functions/treat_details.js')
@@ -15,11 +15,12 @@ module.exports = function embed_normal(message, run, user, recent, game, categor
 	})
 	.setThumbnail(game.assets['cover-medium'].uri) // Can't use "thumbnail" directly for some reason???
 
-	if (details[1]) {
-		to_send.setTitle(`${game.names.international} (${category.name} - ${details[1].name}) in ${run_time(run.times.primary)}`)
-	} else {
-		to_send.setTitle(`${game.names.international} (${category.name}) in ${run_time(run.times.primary)}`)
-	}
+	let title = `${game.names.international} (`
+	if (level) {title += `${level.name}, `}
+	title +=  `${category.name}`
+	title += details[1] ? ` - ${details[1].name})` : ")"
+	title += ` in ${run_time(run.times.primary)}`
+	to_send.setTitle(title)
 
 	let field_number = 0
 

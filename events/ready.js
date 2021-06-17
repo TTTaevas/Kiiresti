@@ -31,7 +31,7 @@ module.exports = async client => {
 				"recent ujiojhehothkylo",
 				"recent",
 				"user",
-				"user KingSawyer",
+				"user SPY3R",
 				"user ujiojhehothkylo",
 				"compare",
 				"top"

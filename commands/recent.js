@@ -32,10 +32,19 @@ module.exports = async (message, id) => {
 		}
 		let run = recent_all[0]
 
-		let recent_promise = new Promise((resolve, reject) => {resolve(get("runs", `user=${user_info.id}&game=${run.game}&category=${run.category}&orderby=date&direction=desc`, id))})
+		let recent_promise = new Promise((resolve, reject) => {
+			if (run.level != undefined) {
+				resolve(get("runs", `user=${user_info.id}&game=${run.game}&category=${run.category}&orderby=date&direction=desc`, id))
+			} else {
+				resolve(get("runs", `user=${user_info.id}&game=${run.game}&category=${run.category}&level=${run.level}&orderby=date&direction=desc`, id))
+			}
+		})
 		let game_promise = new Promise((resolve, reject) => {resolve(get(`games/${run.game}`, `embed=categories.variables`, id))})
+		let level_promise = new Promise((resolve, reject) => { // Too many levels, so better to do a separate request
+			run.level != undefined ? resolve(get(`levels/${run.level}`), ``) : resolve(undefined)
+		})
 
-		let values = await Promise.all([recent_promise, game_promise])
+		let values = await Promise.all([recent_promise, game_promise, level_promise])
 
 		let categories = values[1].categories.data
 		var category
@@ -49,15 +58,16 @@ module.exports = async (message, id) => {
 
 		let details = treat_details(run.values, category.variables.data)
 
-		await store(message.channel.id, run.game, run.category, details[1].id, details[1].name, id)
-		await embed_normal(message, run, user_info, values[0], values[1], category, details)
+		await store(message.channel.id, run.game, run.category, details[1].id, details[1].name,
+			`${values[2] ? values[2].id : undefined}`, `${values[2] ? values[2].name : undefined}`, id)
+		await embed_normal(message, run, user_info, values[0], values[1], category, values[2], details)
 		return resolve(`Sent the user's most recent run!`)
 
 	})
 
 }
 
-async function store(channel, game, category, sub_category, sub_category_name, id) { // Stores the last run on the channel so it can be compared to by users
+async function store(channel, game, category, sub_category, sub_category_name, level, level_name, id) { // Stores the last run on the channel so it can be compared to by users
 	const check_data = require('../functions/check_data.js')
 	const fs = require('fs')
 
@@ -72,6 +82,8 @@ async function store(channel, game, category, sub_category, sub_category_name, i
 			last_runs[i].category = category
 			last_runs[i].sub_category = sub_category
 			last_runs[i].sub_category_name = sub_category_name // Currently only useful for the >ki top command
+			last_runs[i].level = level
+			last_runs[i].level_name = level_name // Currently only useful for the >ki top command
 			console.log(`(${id}) Channel ${channel} has been UPDATED in the last_runs file`)
 			exists = true
 			i = last_runs.length
@@ -82,9 +94,11 @@ async function store(channel, game, category, sub_category, sub_category_name, i
 
 	if (!exists) {
 		if (last_runs.charAt(last_runs.length - 2) == "}") {
-		last_runs = `${last_runs.substring(0, last_runs.length - 1)},{"channel": "${channel}","game": "${game}","category": "${category}","sub_category": "${sub_category}","sub_category_name": "${sub_category_name}"}]`
+			last_runs = `${last_runs.substring(0, last_runs.length - 1)},{"channel": "${channel}","game": "${game}","category": "${category}",
+			"sub_category": "${sub_category}","sub_category_name": "${sub_category_name}", "level": "${level}", "level_name": "${level_name}"}]`
 		} else {
-			last_runs = `${last_runs.substring(0, last_runs.length - 1)}{"channel": "${channel}","game": "${game}","category": "${category}","sub_category": "${sub_category}","sub_category_name": "${sub_category_name}"}]`
+			last_runs = `${last_runs.substring(0, last_runs.length - 1)}{"channel": "${channel}","game": "${game}","category": "${category}",
+			"sub_category": "${sub_category}","sub_category_name": "${sub_category_name}", "level": "${level}", "level_name": "${level_name}"}]`
 		}
 		console.log(`(${id}) Channel ${channel} has been ADDED to the last_runs file`)
 	}

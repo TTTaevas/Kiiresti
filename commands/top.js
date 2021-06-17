@@ -17,6 +17,7 @@ module.exports = async (message, id) => {
 			var game
 			var category
 			var sub_category
+			var level
 			let exists = false
 
 			for (let i = 0; i < last_runs.length; i++) {
@@ -24,6 +25,7 @@ module.exports = async (message, id) => {
 					game = last_runs[i].game
 					category = last_runs[i].category
 					sub_category = [last_runs[i].sub_category, last_runs[i].sub_category_name]
+					level = last_runs[i].level
 					exists = true
 					i = last_runs.length
 				}
@@ -34,7 +36,7 @@ module.exports = async (message, id) => {
 				return resolve(`Could not top, no run in channel ${message.channel}`)
 			}
 
-			await find_top_scores(message, game, category, sub_category, id)
+			await find_top_scores(message, game, category, sub_category, level, id)
 
 		} else { // Get the top runs for the game & category given as arguments
 			
@@ -115,7 +117,7 @@ module.exports = async (message, id) => {
 				}
 			}
 
-			await find_top_scores(message, game.id, category.id, sub_category, id)
+			await find_top_scores(message, game.id, category.id, sub_category, level, id)
 
 		}
 
@@ -125,7 +127,7 @@ module.exports = async (message, id) => {
 
 }
 
-async function find_top_scores(message, game, category, sub_category, id) {
+async function find_top_scores(message, game, category, sub_category, level, id) {
 	const get = require('../functions/get.js')
 
 	let leaderboard = await get(`leaderboards/${game}/category/${category}`, `embed=players`, id)

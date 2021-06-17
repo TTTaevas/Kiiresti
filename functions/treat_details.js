@@ -31,6 +31,7 @@ module.exports = function treat_vals(run_details, cat_details) {
 					} else {
 						details.push(new Detail(cat_details[o].id, cat_details[o].name, Object.values(cat_details[o].values.values)[e].label))
 					}
+					
 				}
 			}
 		}
